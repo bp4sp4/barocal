@@ -661,7 +661,7 @@ export default function Home() {
         </h2>
         <button
           className={styles.footer_button}
-          onClick={() => handleOpenModal("랜딩페이지")}
+          onClick={() => handleOpenModal("랜딩페이지-9740")}
         >
           무료상담 신청하기
         </button>
