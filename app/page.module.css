@@ -948,3 +948,9 @@
 .success_modal_button:hover {
   background: var(--Blue-600, #0040cc);
 }
+
+@media (min-width: 768px) and (max-width: 1920px) {
+  .content {
+    height: 892px !important;
+  }
+}
