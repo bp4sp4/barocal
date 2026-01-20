@@ -211,23 +211,27 @@ export default function Home() {
     }
   }, []);
 
-  // utm_source를 한글 형식으로 변환
   const formatClickSource = (
     utmSource: string,
     materialId: string | null
   ): string => {
     const sourceMap: { [key: string]: string } = {
-      daangn: "당근마켓",
-      insta: "인스타그램",
+      daangn: "당근",
+      insta: "인스타",
+      facebook: "페이스북",
+      google: "구글",
+      youtube: "유튜브",
     };
 
-    const koreanSource = sourceMap[utmSource] || utmSource;
+    const shortSource = sourceMap[utmSource] || utmSource;
+    const homepageName = "9740페이지";
 
     if (materialId) {
-      return `${koreanSource}_소재_${materialId}`;
+      return `${homepageName}_${shortSource}_소재_${materialId}`;
     }
-    return koreanSource;
+    return `${homepageName}_${shortSource}`;
   };
+
 
   // URL 파라미터에서 utm_source 읽어서 clickSource 설정
   useEffect(() => {
