@@ -241,6 +241,76 @@ export async function sendConsultationEmail(data: ConsultationEmailData) {
     console.log("[EMAIL] - messageId:", info.messageId);
     console.log("[EMAIL] - response:", info.response);
 
+    // 슬랙 웹훅 알림 전송 (비동기, 실패해도 이메일 전송은 성공 처리)
+    const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
+    console.log("[SLACK] 슬랙 웹훅 URL 존재:", !!slackWebhookUrl);
+    
+    if (slackWebhookUrl) {
+      try {
+        // 슬랙 메시지 포맷 (가장 안정적인 기본 포맷)
+        const phoneNumber = data.contact.replace(/-/g, "");
+        const koreanTime = formatKoreanTime();
+        const slackMessage = {
+          text: "새 상담 신청 접수",
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `*새 상담 신청 접수*\n\n*이름/기업명:* ${data.name}\n*연락처:* ${data.contact}\n*유입 경로:* ${data.click_source || "랜딩페이지"}\n*신청 시각:* ${koreanTime}`,
+              },
+            },
+          ],
+        };
+
+        console.log("[SLACK] 슬랙 메시지 전송 시도 중...");
+        console.log("[SLACK] 웹훅 URL:", slackWebhookUrl.substring(0, 30) + "...");
+        console.log("[SLACK] 메시지 내용:", JSON.stringify(slackMessage, null, 2));
+
+        // 타임아웃 설정 (10초)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const slackResponse = await fetch(slackWebhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(slackMessage),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        const responseText = await slackResponse.text();
+        console.log("[SLACK] 슬랙 응답 상태:", slackResponse.status);
+        console.log("[SLACK] 슬랙 응답 내용:", responseText);
+
+        if (slackResponse.ok) {
+          console.log("[SLACK] ✅ 슬랙 알림 전송 성공");
+        } else {
+          console.error("[SLACK] ❌ 슬랙 알림 전송 실패:", responseText);
+        }
+      } catch (slackError) {
+        console.error("[SLACK] ❌ 슬랙 알림 전송 중 오류 발생");
+        console.error(
+          "[SLACK] 에러 타입:",
+          slackError instanceof Error ? slackError.constructor.name : typeof slackError
+        );
+        console.error(
+          "[SLACK] 에러 메시지:",
+          slackError instanceof Error ? slackError.message : String(slackError)
+        );
+        console.error(
+          "[SLACK] 에러 스택:",
+          slackError instanceof Error ? slackError.stack : "스택 없음"
+        );
+        // 슬랙 전송 실패해도 이메일 전송은 성공 처리
+      }
+    } else {
+      console.warn("[SLACK] SLACK_WEBHOOK_URL이 설정되지 않아 슬랙 알림을 건너뜁니다");
+    }
+
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("[EMAIL] ❌ 메일 전송 실패! - catch 블록 진입");
