@@ -4,6 +4,9 @@ interface ConsultationEmailData {
   name: string;
   contact: string;
   click_source?: string | null;
+  industry?: string | null;
+  revenue?: string | null;
+  debt?: string | null;
 }
 
 // 한국 시간대(KST, UTC+9)로 날짜/시간 포맷팅
@@ -165,6 +168,29 @@ export async function sendConsultationEmail(data: ConsultationEmailData) {
                   data.click_source || "바로기업 홈페이지"
                 }</td>
               </tr>
+              ${data.industry || data.revenue || data.debt ? `
+              <tr style="border-top: 1px solid #ebedf0; margin-top: 20px;">
+                <td colspan="2" style="padding-top: 20px; font-size: 15px; font-weight: 600; color: #191f28;">계산기 정보</td>
+              </tr>
+              ${data.industry ? `
+              <tr>
+                <td style="padding-bottom: 12px; font-size: 15px; color: #4e5968;">업종</td>
+                <td style="padding-bottom: 12px; font-size: 17px; font-weight: 600; color: #191f28; text-align: right;">${data.industry}</td>
+              </tr>
+              ` : ''}
+              ${data.revenue ? `
+              <tr>
+                <td style="padding-bottom: 12px; font-size: 15px; color: #4e5968;">연간 매출액</td>
+                <td style="padding-bottom: 12px; font-size: 17px; font-weight: 600; color: #191f28; text-align: right;">${data.revenue}</td>
+              </tr>
+              ` : ''}
+              ${data.debt ? `
+              <tr>
+                <td style="padding-bottom: 12px; font-size: 15px; color: #4e5968;">현재 부채</td>
+                <td style="padding-bottom: 12px; font-size: 17px; font-weight: 600; color: #191f28; text-align: right;">${data.debt}</td>
+              </tr>
+              ` : ''}
+              ` : ''}
               <tr style="border-top: 1px solid #ebedf0;">
                 <td style="padding-top: 20px; font-size: 14px; color: #8b95a1;">신청 시각</td>
                 <td style="padding-top: 20px; font-size: 14px; color: #8b95a1; text-align: right;">${formatKoreanTime()}</td>
@@ -196,6 +222,9 @@ export async function sendConsultationEmail(data: ConsultationEmailData) {
 이름(회사명): ${data.name}
 연락처: ${data.contact}
 유입 경로: ${data.click_source || "바로기업 홈페이지"}
+${data.industry ? `업종: ${data.industry}` : ''}
+${data.revenue ? `연간 매출액: ${data.revenue}` : ''}
+${data.debt ? `현재 부채: ${data.debt}` : ''}
 신청 시간: ${formatKoreanTime()}
     `;
 
@@ -250,6 +279,16 @@ export async function sendConsultationEmail(data: ConsultationEmailData) {
         // 슬랙 메시지 포맷 (가장 안정적인 기본 포맷)
         const phoneNumber = data.contact.replace(/-/g, "");
         const koreanTime = formatKoreanTime();
+        
+        // 계산기 정보가 있으면 추가
+        let calculatorInfo = "";
+        if (data.industry || data.revenue || data.debt) {
+          calculatorInfo = "\n\n*입력 정보*";
+          if (data.industry) calculatorInfo += `\n*업종:* ${data.industry}`;
+          if (data.revenue) calculatorInfo += `\n*연간 매출액:* ${data.revenue}`;
+          if (data.debt) calculatorInfo += `\n*현재 부채:* ${data.debt}`;
+        }
+        
         const slackMessage = {
           text: "새 상담 신청 접수",
           blocks: [
@@ -257,7 +296,7 @@ export async function sendConsultationEmail(data: ConsultationEmailData) {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: `*새 상담 신청 접수*\n\n*이름/기업명:* ${data.name}\n*연락처:* ${data.contact}\n*유입 경로:* ${data.click_source || "랜딩페이지"}\n*신청 시각:* ${koreanTime}`,
+                text: `*새 상담 신청 접수*\n\n*이름/기업명:* ${data.name}\n*연락처:* ${data.contact}\n*유입 경로:* ${data.click_source || "랜딩페이지"}${calculatorInfo}\n*신청 시각:* ${koreanTime}`,
               },
             },
           ],

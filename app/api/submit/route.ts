@@ -38,13 +38,16 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, contact, privacyAgreed, clickSource } = body;
+    const { name, contact, privacyAgreed, clickSource, industry, revenue, debt } = body;
 
     console.log("Request body received:", {
       name,
       contact,
       privacyAgreed,
       clickSource,
+      industry,
+      revenue,
+      debt,
     });
 
     // 필수 필드 검증
@@ -95,6 +98,9 @@ export async function POST(request: NextRequest) {
           contact,
           is_completed: false, // 신청 시에는 미완료 상태
           click_source: clickSource || "unknown", // 클릭 출처 추적
+          industry: industry || null, // 업종
+          revenue: revenue || null, // 연간 매출액
+          debt: debt || null, // 현재 부채
         },
       ])
       .select();
@@ -153,6 +159,9 @@ export async function POST(request: NextRequest) {
           name,
           contact,
           click_source: clickSource || null,
+          industry: industry || null,
+          revenue: revenue || null,
+          debt: debt || null,
         });
         console.log(
           "[EMAIL] 이메일 전송 결과:",

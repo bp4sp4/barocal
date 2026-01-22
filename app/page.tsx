@@ -19,6 +19,11 @@ export default function Home() {
     name: "",
     contact: "",
   });
+  const [calculatorData, setCalculatorData] = useState<{
+    industry: string;
+    revenue: string;
+    debt: string;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [clickSource, setClickSource] = useState<string>("");
   const footerRef = useRef<HTMLElement>(null);
@@ -118,6 +123,9 @@ export default function Home() {
           contact: formData.contact,
           privacyAgreed: privacyAgreed,
           clickSource: clickSource || "unknown",
+          industry: calculatorData?.industry || null,
+          revenue: calculatorData?.revenue || null,
+          debt: calculatorData?.debt || null,
         }),
       });
 
@@ -135,6 +143,7 @@ export default function Home() {
       setFormData({ name: "", contact: "" });
       setPrivacyAgreed(false);
       setClickSource(""); // 추적 정보 초기화
+      setCalculatorData(null); // 계산기 데이터 초기화
     } catch (error) {
       console.error("Submit error:", error);
       alert(
@@ -158,6 +167,31 @@ export default function Home() {
         const progress = timestamp - start;
         const progressRatio = Math.min(progress / duration, 1);
         const ease = progressRatio * (2 - progressRatio); // ease-out
+
+        window.scrollTo(0, startPosition + distance * ease);
+
+        if (progress < duration) {
+          requestAnimationFrame(step);
+        }
+      };
+
+      requestAnimationFrame(step);
+    }
+  };
+
+  const scrollToCalculator = () => {
+    if (contentRef.current) {
+      const calculatorTop = contentRef.current.offsetTop;
+      const startPosition = window.pageYOffset;
+      const distance = calculatorTop - startPosition;
+      const duration = 500;
+      let start: number | null = null;
+
+      const step = (timestamp: number) => {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        const progressRatio = Math.min(progress / duration, 1);
+        const ease = progressRatio * (2 - progressRatio);
 
         window.scrollTo(0, startPosition + distance * ease);
 
@@ -233,7 +267,7 @@ export default function Home() {
     };
 
     const shortSource = sourceMap[utmSource] || utmSource;
-    const homepageName = "소상공인_이자";
+    const homepageName = "1분만에_정책자금_상담";
 
     if (materialId) {
       return `${homepageName}_${shortSource}_소재_${materialId}`;
@@ -287,14 +321,22 @@ export default function Home() {
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          if (footerRef.current) {
+          if (contentRef.current && footerRef.current) {
+            const calculatorTop = contentRef.current.getBoundingClientRect().top;
+            const calculatorBottom = contentRef.current.getBoundingClientRect().bottom;
             const footerTop = footerRef.current.getBoundingClientRect().top;
             const windowHeight = window.innerHeight;
 
-            // footer가 화면에 보이기 시작하면 숨기기
-            if (footerTop <= windowHeight - 100) {
+            // Calculator 섹션이 화면에 보이면 버튼 숨기기
+            if (calculatorTop <= windowHeight && calculatorBottom >= 0) {
               setShowFloatingBanner(false);
-            } else {
+            } 
+            // footer가 화면에 보이기 시작하면 숨기기
+            else if (footerTop <= windowHeight - 100) {
+              setShowFloatingBanner(false);
+            } 
+            // 그 외에는 버튼 보이기
+            else {
               setShowFloatingBanner(true);
             }
           }
@@ -480,7 +522,12 @@ export default function Home() {
         )}
       </div>
       <div ref={contentRef} className={styles.content}>
-      <Calculator />
+      <Calculator onConsultationClick={(data) => {
+        if (data) {
+          setCalculatorData(data);
+        }
+        handleOpenModal("1분만에_정책자금_상담");
+      }} />
       </div>
       
       <div ref={contentsSectionRef} className={styles.cotent_new_section}>

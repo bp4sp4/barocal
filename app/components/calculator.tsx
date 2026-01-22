@@ -5,6 +5,10 @@ import styles from "./calculator.module.css";
 
 type Step = "start" | "form" | "loading" | "result";
 
+interface CalculatorProps {
+  onConsultationClick?: (calculatorData?: { industry: string; revenue: string; debt: string }) => void;
+}
+
 interface FormData {
   industry: string;
   revenue: string;
@@ -98,14 +102,34 @@ const calculateResult = (industry: string, revenue: string, debt: string): Resul
   calculatedAmount = Math.round(calculatedAmount / 1000) * 1000;
 
   // 금리 계산 (매출이 높고 부채가 적을수록 낮은 금리)
-  let rateMultiplier = 1.0;
-  if (revenueAmount >= 20000 && debtAmount < revenueAmount * 0.3) {
-    rateMultiplier = 0.9; // 유리한 조건
-  } else if (revenueAmount < 5000 || debtAmount > revenueAmount * 0.5) {
-    rateMultiplier = 1.1; // 불리한 조건
+  // 매출액과 부채 비율에 따라 금리 범위 내에서 위치 결정
+  let ratePosition = 0.5; // 기본값: 중간 (0.0 = 최소 금리, 1.0 = 최대 금리)
+  
+  // 매출액에 따른 금리 조정
+  if (revenueAmount >= 40000) {
+    ratePosition = 0.2; // 매우 높은 매출 → 최소 금리에 가까움
+  } else if (revenueAmount >= 20000) {
+    ratePosition = 0.3; // 높은 매출 → 낮은 금리
+  } else if (revenueAmount >= 7500) {
+    ratePosition = 0.5; // 보통 매출 → 중간 금리
+  } else {
+    ratePosition = 0.7; // 낮은 매출 → 높은 금리
   }
-
-  const calculatedRate = (minRate + (maxRate - minRate) * 0.5) * rateMultiplier;
+  
+  // 부채 비율에 따른 금리 조정
+  const debtRatio = debtAmount / revenueAmount;
+  if (debtRatio < 0.2) {
+    ratePosition = ratePosition * 0.8; // 부채 적음 → 금리 더 낮춤
+  } else if (debtRatio < 0.3) {
+    ratePosition = ratePosition * 0.9; // 부채 적음 → 금리 약간 낮춤
+  } else if (debtRatio > 0.6) {
+    ratePosition = ratePosition * 1.2; // 부채 많음 → 금리 높임
+  } else if (debtRatio > 0.5) {
+    ratePosition = ratePosition * 1.1; // 부채 많음 → 금리 약간 높임
+  }
+  
+  // 금리 범위 내에서 최종 금리 계산
+  const calculatedRate = minRate + (maxRate - minRate) * Math.min(1.0, Math.max(0.0, ratePosition));
   const finalRate = Math.max(minRate, Math.min(maxRate, calculatedRate));
 
   // 금액 포맷팅
@@ -160,10 +184,10 @@ const calculateResult = (industry: string, revenue: string, debt: string): Resul
 };
 
 const industries = ["소매업", "음식점업", "서비스업", "제조업", "건설업", "기타"];
-const revenues = ["5천만원 미만", "5천만원~1억원", "1억원~3억원", "3억원~5억원", "5억원 이상"];
-const debts = ["5천만원 미만", "5천만원~1억원", "1억원~3억원", "3억원~5억원", "5억원 이상"];
+const revenues = ["5천만원 미만", "5천만원~1억원", "1억원~3억원", "3억원~5억원", "5억원 이상", "잘 모르겠음"];
+const debts = ["5천만원 미만", "5천만원~1억원", "1억원~3억원", "3억원~5억원", "5억원 이상", "잘 모르겠음"];
 
-export default function Calculator() {
+export default function Calculator({ onConsultationClick }: CalculatorProps = {}) {
   const [step, setStep] = useState<Step>("start");
   const [formData, setFormData] = useState<FormData>({
     industry: "",
@@ -175,6 +199,7 @@ export default function Calculator() {
   const [animatedAmount, setAnimatedAmount] = useState(0);
   const [animatedRate, setAnimatedRate] = useState(0);
   const [openSelect, setOpenSelect] = useState<string | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ [key: string]: "bottom" | "top" }>({});
 
   const handleStart = () => {
     setStep("form");
@@ -186,7 +211,33 @@ export default function Calculator() {
   };
 
   const toggleSelect = (field: string) => {
-    setOpenSelect(openSelect === field ? null : field);
+    if (openSelect === field) {
+      setOpenSelect(null);
+    } else {
+      setOpenSelect(field);
+      // 드롭다운 위치 계산 (화면 하단에 가까우면 위로 열림)
+      if (typeof window !== "undefined") {
+        setTimeout(() => {
+          const wrapper = document.querySelector(`[data-field="${field}"]`) as HTMLElement;
+          if (wrapper) {
+            const rect = wrapper.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            const spaceBelow = windowHeight - rect.bottom;
+            const dropdownHeight = 350; // max-height + padding
+            
+            // 아래 공간이 부족하면 위로 열림
+            // 연간 매출액은 항상 위로 열림
+            if (field === "revenue") {
+              setDropdownPosition({ ...dropdownPosition, [field]: "top" });
+            } else if (spaceBelow < dropdownHeight + 50) {
+              setDropdownPosition({ ...dropdownPosition, [field]: "top" });
+            } else {
+              setDropdownPosition({ ...dropdownPosition, [field]: "bottom" });
+            }
+          }
+        }, 10);
+      }
+    }
   };
 
   // 외부 클릭 시 드롭다운 닫기
@@ -209,6 +260,46 @@ export default function Calculator() {
   const handleSubmit = () => {
     if (!formData.industry || !formData.revenue || !formData.debt) {
       alert("모든 항목을 선택해주세요.");
+      return;
+    }
+
+    // "잘 모르겠음"이 선택된 경우 상담 안내 결과 표시
+    if (formData.revenue === "잘 모르겠음" || formData.debt === "잘 모르겠음") {
+      setStep("loading");
+      setLoadingProgress(0);
+
+      const interval = setInterval(() => {
+        setLoadingProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setResult({
+              amount: "상담 필요",
+              interestRate: "상담 필요",
+              message: "정확한 한도와 금리를 확인하기 위해 전문 상담이 필요합니다",
+            });
+            setTimeout(() => {
+              setStep("result");
+            }, 500);
+            return 100;
+          }
+          return prev + Math.random() * 15;
+        });
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        if (loadingProgress < 100) {
+          setResult({
+            amount: "상담 필요",
+            interestRate: "상담 필요",
+            message: "정확한 한도와 금리를 확인하기 위해 전문 상담이 필요합니다",
+          });
+          setLoadingProgress(100);
+          setTimeout(() => {
+            setStep("result");
+          }, 500);
+        }
+      }, 3000);
       return;
     }
 
@@ -432,6 +523,7 @@ export default function Calculator() {
               <div 
                 className={styles.custom_select_wrapper}
                 style={{ zIndex: openSelect === "industry" ? 1000 : 10 }}
+                data-field="industry"
               >
                 <div 
                   className={`${styles.select_trigger} ${formData.industry ? styles.select_trigger_active : ""}`}
@@ -460,7 +552,9 @@ export default function Calculator() {
                   </svg>
                 </div>
                 {openSelect === "industry" && (
-                  <ul className={styles.options_list}>
+                  <ul 
+                    className={`${styles.options_list} ${dropdownPosition["industry"] === "top" ? styles.options_list_top : ""}`}
+                  >
                     {industries.map(i => (
                       <li
                         key={i}
@@ -480,6 +574,7 @@ export default function Calculator() {
               <div 
                 className={styles.custom_select_wrapper}
                 style={{ zIndex: openSelect === "revenue" ? 1000 : 10 }}
+                data-field="revenue"
               >
                 <div 
                   className={`${styles.select_trigger} ${formData.revenue ? styles.select_trigger_active : ""}`}
@@ -508,7 +603,9 @@ export default function Calculator() {
                   </svg>
                 </div>
                 {openSelect === "revenue" && (
-                  <ul className={styles.options_list}>
+                  <ul 
+                    className={`${styles.options_list} ${dropdownPosition["revenue"] === "top" ? styles.options_list_top : ""}`}
+                  >
                     {revenues.map(r => (
                       <li
                         key={r}
@@ -528,6 +625,7 @@ export default function Calculator() {
               <div 
                 className={styles.custom_select_wrapper}
                 style={{ zIndex: openSelect === "debt" ? 1000 : 10 }}
+                data-field="debt"
               >
                 <div 
                   className={`${styles.select_trigger} ${formData.debt ? styles.select_trigger_active : ""}`}
@@ -556,7 +654,9 @@ export default function Calculator() {
                   </svg>
                 </div>
                 {openSelect === "debt" && (
-                  <ul className={styles.options_list}>
+                  <ul 
+                    className={`${styles.options_list} ${dropdownPosition["debt"] === "top" ? styles.options_list_top : ""}`}
+                  >
                     {debts.map(d => (
                       <li
                         key={d}
@@ -597,30 +697,66 @@ export default function Calculator() {
 
       {step === "result" && result && (
         <div className={styles.inner}>
-          <div className={styles.resultHeader}>
-            <div className={styles.checkIcon}>✓</div>
-            <h2 className={styles.resultTitle}>분석이 완료되었습니다</h2>
-          </div>
+          {result.amount === "상담 필요" ? (
+            <div className={styles.consultationWrapper}>
+              <div className={styles.resultHeader}>
+                <div className={styles.checkIcon}>ℹ</div>
+                <h2 className={styles.resultTitle} style={{ textAlign: "center" }}>정확한 분석을 위해 상담이 필요합니다</h2>
+              </div>
 
-          <div className={styles.resultCard}>
-            <div className={styles.resultRow}>
-              <span className={styles.label}>예상 한도</span>
-              <span className={styles.valueBlue}>{formatAmount(animatedAmount, result.amount)}</span>
+              <div className={styles.buttonGroupConsultation}>
+                <button className={styles.ctaButton} onClick={() => {
+                  if (onConsultationClick) {
+                    onConsultationClick({
+                      industry: formData.industry,
+                      revenue: formData.revenue,
+                      debt: formData.debt,
+                    });
+                  } else {
+                    handleReset();
+                  }
+                }}>
+                  이대로 안내받기
+                </button>
+              </div>
             </div>
-            <div className={styles.resultRow}>
-              <span className={styles.label}>최저 금리</span>
-              <span className={styles.value}>연 {formatRate(animatedRate)}</span>
-            </div>
-          </div>
+          ) : (
+            <>
+              <div className={styles.resultHeader}>
+                <div className={styles.checkIcon}>✓</div>
+                <h2 className={styles.resultTitle}>분석이 완료되었습니다</h2>
+              </div>
 
-          <p className={styles.notice}>* 실제 심사 결과에 따라 차이가 발생할 수 있습니다.</p>
-          
-          <div className={styles.buttonGroup}>
-            <button className={styles.ctaButton} onClick={handleReset}>
-           
-              이대로 안내받기
-            </button>
-          </div>
+              <div className={styles.resultCard}>
+                <div className={styles.resultRow}>
+                  <span className={styles.label}>예상 한도</span>
+                  <span className={styles.valueBlue}>{formatAmount(animatedAmount, result.amount)}</span>
+                </div>
+                <div className={styles.resultRow}>
+                  <span className={styles.label}>최저 금리</span>
+                  <span className={styles.value}>연 {formatRate(animatedRate)}</span>
+                </div>
+              </div>
+
+              <p className={styles.notice}>* 실제 심사 결과에 따라 차이가 발생할 수 있습니다.</p>
+              
+              <div className={styles.buttonGroup}>
+                <button className={styles.ctaButton} onClick={() => {
+                  if (onConsultationClick) {
+                    onConsultationClick({
+                      industry: formData.industry,
+                      revenue: formData.revenue,
+                      debt: formData.debt,
+                    });
+                  } else {
+                    handleReset();
+                  }
+                }}>
+                  이대로 안내받기
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </section>
