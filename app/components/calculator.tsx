@@ -446,8 +446,12 @@ export default function Calculator() {
           <p className={styles.notice}>* 실제 심사 결과에 따라 차이가 발생할 수 있습니다.</p>
           
           <div className={styles.buttonGroup}>
-            <button className={styles.ctaButton}>상담 신청하기</button>
-            <button className={styles.textButton} onClick={handleReset}>다시 하기</button>
+            <button className={styles.ctaButton} onClick={handleReset}>
+              <span className={styles.resetIcon}>
+                <img src="/reset.png" alt="reset" />
+              </span>
+              다시 하기
+            </button>
           </div>
         </div>
       )}

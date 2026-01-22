@@ -184,6 +184,9 @@
   cursor: pointer;
   margin-top: auto;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ctaButton:hover {
@@ -207,9 +210,25 @@
 }
 
 .buttonGroup {
+  margin-top: auto;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.resetIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  line-height: 1;
+}
+
+.resetIcon img {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 /* Loading */
@@ -254,6 +273,7 @@
 .resultHeader {
   text-align: center;
   margin-bottom: 32px;
+  margin-top: 10px;
 }
 
 .checkIcon {
@@ -266,7 +286,7 @@
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  margin: 0 auto 20px;
+  margin: 0 auto 10px;
 }
 
 .resultTitle {
@@ -308,7 +328,7 @@
 }
 
 .valueBlue {
-  color: #3182f6;
+  color: #0051ff;
   font-size: 28px; /* 더 시원하게 크기 키움 */
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -318,7 +338,7 @@
   font-size: 13px;
   color: #8b95a1;
   text-align: center;
-  margin-top: 5px;
+  margin: 10px 20px;
 }
 
 
