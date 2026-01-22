@@ -1,12 +1,12 @@
 .container {
   width: 100%;
-  background-color: #0039b2;
+  
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 22px 20px;
-  font-family: Pretendard;
   
+  font-family: Pretendard;
+  margin-top: auto;;
 }
 
 .inner {
@@ -43,7 +43,7 @@
 }
 
 .title {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 800;
   line-height: 1.2;
   color: #191f28;

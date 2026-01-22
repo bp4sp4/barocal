@@ -480,32 +480,9 @@ export default function Home() {
         )}
       </div>
       <div ref={contentRef} className={styles.content}>
-        <Image
-          src="/main.gif"
-          alt="main animation"
-          width={467}
-          height={467}
-          className={styles.main_gif}
-          unoptimized={true}
-          priority
-          onLoad={() => setMainImageLoaded(true)}
-        />
-        {mainImageLoaded && (
-          <>
-            <img
-              src="/left_coin.png"
-              alt="left coin"
-              className={styles.left_coin}
-            />
-            <img
-              src="/right_coin.png"
-              alt="right coin"
-              className={styles.right_coin}
-            />
-          </>
-        )}
-      </div>
       <Calculator />
+      </div>
+      
       <div ref={contentsSectionRef} className={styles.cotent_new_section}>
         <div className={styles.news_text_wrapper}>
           <p className={styles.news_pretext}>2026년 중소벤처기업부 소상공인 예산</p>

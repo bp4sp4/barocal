@@ -17,17 +17,147 @@ interface Result {
   message: string;
 }
 
-// 다양한 결과 데이터
-const resultData: Result[] = [
-  { amount: "9740만원", interestRate: "2%대", message: "사장님은 최대 9740만원, 2%대 금리 대상자일 확률이 높습니다" },
-  { amount: "1억 2천만원", interestRate: "1.5%대", message: "사장님은 최대 1억 2천만원, 1.5%대 금리 대상자일 확률이 높습니다" },
-  { amount: "8500만원", interestRate: "2.5%대", message: "사장님은 최대 8500만원, 2.5%대 금리 대상자일 확률이 높습니다" },
-  { amount: "1억 5천만원", interestRate: "1.8%대", message: "사장님은 최대 1억 5천만원, 1.8%대 금리 대상자일 확률이 높습니다" },
-  { amount: "7200만원", interestRate: "2.2%대", message: "사장님은 최대 7200만원, 2.2%대 금리 대상자일 확률이 높습니다" },
-  { amount: "1억 8천만원", interestRate: "1.2%대", message: "사장님은 최대 1억 8천만원, 1.2%대 금리 대상자일 확률이 높습니다" },
-  { amount: "6500만원", interestRate: "2.8%대", message: "사장님은 최대 6500만원, 2.8%대 금리 대상자일 확률이 높습니다" },
-  { amount: "2억원", interestRate: "1.0%대", message: "사장님은 최대 2억원, 1.0%대 금리 대상자일 확률이 높습니다" },
-];
+// 업종별 정책자금 계산 함수
+const calculateResult = (industry: string, revenue: string, debt: string): Result => {
+  // 매출액을 숫자로 변환 (만원 단위)
+  const parseRevenue = (rev: string): number => {
+    if (rev.includes("5천만원 미만")) return 4000;
+    if (rev.includes("5천만원~1억원")) return 7500;
+    if (rev.includes("1억원~3억원")) return 20000;
+    if (rev.includes("3억원~5억원")) return 40000;
+    if (rev.includes("5억원 이상")) return 60000;
+    return 10000;
+  };
+
+  // 부채를 숫자로 변환 (만원 단위)
+  const parseDebt = (d: string): number => {
+    if (d.includes("5천만원 미만")) return 4000;
+    if (d.includes("5천만원~1억원")) return 7500;
+    if (d.includes("1억원~3억원")) return 20000;
+    if (d.includes("3억원~5억원")) return 40000;
+    if (d.includes("5억원 이상")) return 60000;
+    return 10000;
+  };
+
+  const revenueAmount = parseRevenue(revenue);
+  const debtAmount = parseDebt(debt);
+
+  let minAmount = 0;
+  let maxAmount = 0;
+  let minRate = 0;
+  let maxRate = 0;
+  let baseAmount = 0;
+
+  // 업종별 기본 한도 및 금리 설정
+  if (industry === "소매업" || industry === "음식점업" || industry === "서비스업") {
+    minAmount = 3000;
+    maxAmount = 10000;
+    baseAmount = 6500; // 평균 승인액
+    minRate = 3.5;
+    maxRate = 5.0;
+  } else if (industry === "제조업") {
+    minAmount = 10000;
+    maxAmount = 50000;
+    baseAmount = 20000; // 평균 승인액
+    minRate = 2.8;
+    maxRate = 4.0;
+  } else if (industry === "건설업") {
+    minAmount = 5000;
+    maxAmount = 20000;
+    baseAmount = 11000; // 평균 승인액
+    minRate = 4.0;
+    maxRate = 5.5;
+  } else {
+    // 기타 업종
+    minAmount = 3000;
+    maxAmount = 10000;
+    baseAmount = 6000;
+    minRate = 4.0;
+    maxRate = 4.5;
+  }
+
+  // 매출액에 따른 한도 조정
+  let calculatedAmount = baseAmount;
+  if (revenueAmount < 5000) {
+    calculatedAmount = baseAmount * 0.7; // 매출이 적으면 한도 감소
+  } else if (revenueAmount >= 20000) {
+    calculatedAmount = baseAmount * 1.3; // 매출이 많으면 한도 증가
+  } else if (revenueAmount >= 40000) {
+    calculatedAmount = baseAmount * 1.5;
+  }
+
+  // 부채에 따른 한도 조정
+  if (debtAmount > revenueAmount * 0.5) {
+    calculatedAmount = calculatedAmount * 0.8; // 부채가 많으면 한도 감소
+  }
+
+  // 최종 한도 범위 내로 조정
+  calculatedAmount = Math.max(minAmount, Math.min(maxAmount, calculatedAmount));
+  
+  // 천만원 단위로 반올림
+  calculatedAmount = Math.round(calculatedAmount / 1000) * 1000;
+
+  // 금리 계산 (매출이 높고 부채가 적을수록 낮은 금리)
+  let rateMultiplier = 1.0;
+  if (revenueAmount >= 20000 && debtAmount < revenueAmount * 0.3) {
+    rateMultiplier = 0.9; // 유리한 조건
+  } else if (revenueAmount < 5000 || debtAmount > revenueAmount * 0.5) {
+    rateMultiplier = 1.1; // 불리한 조건
+  }
+
+  const calculatedRate = (minRate + (maxRate - minRate) * 0.5) * rateMultiplier;
+  const finalRate = Math.max(minRate, Math.min(maxRate, calculatedRate));
+
+  // 금액 포맷팅
+  const formatAmountValue = (amount: number): string => {
+    if (amount === 0) return "0만원";
+    
+    const eok = Math.floor(amount / 10000);
+    const remainder = amount % 10000;
+    const man = Math.floor(remainder / 1000);
+    const restMan = remainder % 1000;
+
+    if (eok > 0) {
+      if (man > 0) {
+        return `${eok}억 ${man}천만원`;
+      } else if (restMan > 0) {
+        return `${eok}억 ${restMan}만원`;
+      }
+      return `${eok}억원`;
+    }
+    
+    // 1억 미만
+    if (man > 0) {
+      if (restMan > 0) {
+        return `${man}천${restMan}만원`;
+      }
+      return `${man}천만원`;
+    }
+    
+    if (restMan > 0) {
+      return `${restMan}만원`;
+    }
+    
+    return "0만원";
+  };
+
+  // 금리 포맷팅
+  const formatRateValue = (rate: number): string => {
+    if (rate % 1 === 0) {
+      return `${Math.floor(rate)}%대`;
+    }
+    return `${rate.toFixed(1)}%대`;
+  };
+
+  const amountStr = formatAmountValue(calculatedAmount);
+  const rateStr = formatRateValue(finalRate);
+
+  return {
+    amount: amountStr,
+    interestRate: rateStr,
+    message: `사장님은 최대 ${amountStr}, ${rateStr} 금리 대상자일 확률이 높습니다`,
+  };
+};
 
 const industries = ["소매업", "음식점업", "서비스업", "제조업", "건설업", "기타"];
 const revenues = ["5천만원 미만", "5천만원~1억원", "1억원~3억원", "3억원~5억원", "5억원 이상"];
@@ -90,9 +220,13 @@ export default function Calculator() {
       setLoadingProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          // 랜덤 결과 선택
-          const randomResult = resultData[Math.floor(Math.random() * resultData.length)];
-          setResult(randomResult);
+          // 업종, 매출액, 부채 기반으로 결과 계산
+          const calculatedResult = calculateResult(
+            formData.industry,
+            formData.revenue,
+            formData.debt
+          );
+          setResult(calculatedResult);
           setTimeout(() => {
             setStep("result");
           }, 500);
@@ -106,8 +240,13 @@ export default function Calculator() {
     setTimeout(() => {
       clearInterval(interval);
       if (loadingProgress < 100) {
-        const randomResult = resultData[Math.floor(Math.random() * resultData.length)];
-        setResult(randomResult);
+        // 업종, 매출액, 부채 기반으로 결과 계산
+        const calculatedResult = calculateResult(
+          formData.industry,
+          formData.revenue,
+          formData.debt
+        );
+        setResult(calculatedResult);
         setLoadingProgress(100);
         setTimeout(() => {
           setStep("result");
@@ -135,16 +274,47 @@ export default function Calculator() {
       return eok * 10000 + man * 1000;
     }
     
+    // "1억 2천3만원" 형식 처리
+    const eokManRestMatch = amountStr.match(/(\d+)억\s*(\d+)천(\d+)만원/);
+    if (eokManRestMatch) {
+      const eok = parseFloat(eokManRestMatch[1]);
+      const man = parseFloat(eokManRestMatch[2]);
+      const rest = parseFloat(eokManRestMatch[3]);
+      return eok * 10000 + man * 1000 + rest;
+    }
+    
+    // "1억 500만원" 형식 처리
+    const eokRestMatch = amountStr.match(/(\d+)억\s*(\d+)만원/);
+    if (eokRestMatch) {
+      const eok = parseFloat(eokRestMatch[1]);
+      const rest = parseFloat(eokRestMatch[2]);
+      return eok * 10000 + rest;
+    }
+    
     // "1억원" 형식 처리
     const eokMatch = amountStr.match(/(\d+)억원/);
     if (eokMatch) {
       return parseFloat(eokMatch[1]) * 10000;
     }
     
-    // "9740만원" 형식 처리
-    const manMatch = amountStr.match(/(\d+(?:\.\d+)?)만원/);
+    // "6천만원" 형식 처리
+    const manMatch = amountStr.match(/(\d+)천만원/);
     if (manMatch) {
-      return parseFloat(manMatch[1]);
+      return parseFloat(manMatch[1]) * 1000;
+    }
+    
+    // "6천500만원" 형식 처리
+    const manRestMatch = amountStr.match(/(\d+)천(\d+)만원/);
+    if (manRestMatch) {
+      const man = parseFloat(manRestMatch[1]);
+      const rest = parseFloat(manRestMatch[2]);
+      return man * 1000 + rest;
+    }
+    
+    // "500만원" 형식 처리
+    const restMatch = amountStr.match(/(\d+(?:\.\d+)?)만원/);
+    if (restMatch) {
+      return parseFloat(restMatch[1]);
     }
     
     return 0;
@@ -236,10 +406,10 @@ export default function Calculator() {
         <div className={styles.inner}>
           <div className={styles.header}>
             <h1 className={styles.title}>
-              사장님을 위한<br />
-              <span>숨은 정책자금</span> 찾기
+              <span>나에게 맞는 정책자금</span><br/>
+              1분만에 알아보기
             </h1>
-            <p className={styles.subtitle}>1분 만에 예상 한도와 금리를 확인하세요</p>
+            <p className={styles.subtitle}>빠르게 예상 한도와 금리를 확인해보세요</p>
           </div>
           <div className={styles.calculator_bg}>
           <img src="/calculator_bg.png" alt="calculator bg" />
