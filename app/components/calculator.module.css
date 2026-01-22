@@ -13,10 +13,10 @@
   max-width: 450px;
   background: #ffffff;
   border-radius: 8px;
-  padding: 24px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  
+  height: 500px;
 }
 
 .innerCenter {
@@ -42,14 +42,14 @@
 
 .title {
   font-size: 30px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.2;
   color: #191f28;
   margin-bottom: 6px;
 }
 
 .title span {
-  color: #3182f6;
+  color: #0051ff;
 }
 
 .subtitle {
@@ -74,7 +74,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .field {
@@ -173,14 +173,14 @@
 .ctaButton {
   width: 100%;
   padding: 18px;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
   background-color: #0051ff;
   color: #ffffff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 20px;
+  margin-top: 10px;
   transition: background 0.2s;
 }
 
@@ -199,7 +199,7 @@
   border: none;
   color: #6b7684;
   font-size: 15px;
-  padding: 12px;
+  
   cursor: pointer;
   text-decoration: underline;
 }
@@ -278,7 +278,7 @@
   background: #f9fafb;
   border-radius: 8px;
   padding: 24px;
-  margin: 24px 0;
+  
 }
 
 .resultRow {
@@ -316,7 +316,7 @@
   font-size: 13px;
   color: #8b95a1;
   text-align: center;
-  margin-bottom: 20px;
+  margin-top: 5px;
 }
 
 

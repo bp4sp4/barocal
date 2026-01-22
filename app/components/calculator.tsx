@@ -245,7 +245,7 @@ export default function Calculator() {
           <img src="/calculator_bg.png" alt="calculator bg" />
           </div>
           <button className={styles.ctaButton} onClick={handleStart}>
-        전체 예산 소진 전 1분 자가진단 시작하기
+        1분 자가진단 시작하기
           </button>
         </div>
       )}
