@@ -242,7 +242,7 @@ export default function Calculator() {
             <p className={styles.subtitle}>1분 만에 예상 한도와 금리를 확인하세요</p>
           </div>
           <button className={styles.ctaButton} onClick={handleStart}>
-            시작하기
+        전체 예산 소진 전 1분 자가진단 시작하기
           </button>
         </div>
       )}
