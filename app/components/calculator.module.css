@@ -1,0 +1,345 @@
+.container {
+  width: 100%;
+  background-color: #f2f4f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.inner {
+  width: 100%;
+  max-width: 450px;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+}
+
+.innerCenter {
+  width: 100%;
+  max-width: 450px;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Header & Typography */
+.header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #191f28;
+  margin-bottom: 12px;
+}
+
+.title span {
+  color: #3182f6;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #4e5968;
+  margin-bottom: 40px;
+}
+
+.formHeader {
+  margin-bottom: 32px;
+}
+
+.formTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #191f28;
+  margin: 0;
+}
+
+/* Form Elements */
+.formGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4e5968;
+  margin-bottom: 8px;
+  margin-left: 4px;
+}
+
+/* 커스텀 셀렉트박스 */
+.custom_select_wrapper {
+  position: relative;
+  width: 100%;
+  z-index: 1; /* 기본 z-index, 열릴 때는 인라인 스타일로 높은 값 설정 */
+}
+
+.select_trigger {
+  width: 100%;
+  padding: 18px 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e8eb;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 16px;
+  font-weight: 500;
+  color: #191f28;
+}
+
+.select_trigger:hover {
+  background: #f2f4f6;
+  border-color: #d1d6db;
+}
+
+/* 활성화되었을 때 파란색 테두리 */
+.select_trigger_active {
+  background: #ffffff;
+  border-color: #3182f6;
+  box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.1);
+}
+
+.placeholder {
+  color: #b0b8c1;
+}
+
+/* 드롭다운 리스트 */
+.options_list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 18px;
+  /* 토스 특유의 깊이감 있는 그림자 */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  margin: 0;
+  list-style: none;
+  animation: slideUp 0.3s ease-out;
+  z-index: 1000; /* wrapper의 z-index보다 높게 설정 */
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.option_item {
+  padding: 16px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #4e5968;
+  font-size: 16px;
+  transition: background 0.15s;
+}
+
+.option_item:hover {
+  background: #f2f4f6;
+  color: #3182f6;
+  font-weight: 600;
+}
+
+/* Buttons */
+.ctaButton {
+  width: 100%;
+  padding: 18px;
+  font-size: 17px;
+  font-weight: 600;
+  background-color: #3182f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background 0.2s;
+}
+
+.ctaButton:hover {
+  background-color: #1b64da;
+}
+
+.ctaButton:disabled {
+  background-color: #e5e8eb;
+  color: #b0b8c1;
+  cursor: not-allowed;
+}
+
+.textButton {
+  background: none;
+  border: none;
+  color: #6b7684;
+  font-size: 15px;
+  padding: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Loading */
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #f2f4f6;
+  border-top: 5px solid #3182f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 24px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: 20px;
+  font-weight: 700;
+  color: #191f28;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+.progressContainer {
+  width: 80%;
+  height: 6px;
+  background: #e5e8eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: #3182f6;
+  transition: width 0.3s ease;
+}
+
+/* Result Card */
+.resultHeader {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.checkIcon {
+  width: 50px;
+  height: 50px;
+  background: #3182f6;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 20px;
+}
+
+.resultTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #191f28;
+  margin: 0;
+}
+
+.resultCard {
+  background: #f9fafb;
+  border-radius: 20px;
+  padding: 24px;
+  margin: 24px 0;
+}
+
+.resultRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.resultRow:first-child {
+  border-bottom: 1px solid #eeeeee;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.label {
+  color: #4e5968;
+  font-size: 15px;
+}
+
+.value {
+  color: #191f28;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.valueBlue {
+  color: #3182f6;
+  font-size: 28px; /* 더 시원하게 크기 키움 */
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.notice {
+  font-size: 13px;
+  color: #8b95a1;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .inner {
+    padding: 32px 20px;
+    min-height: auto;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .formTitle {
+    font-size: 20px;
+  }
+
+  .resultTitle {
+    font-size: 20px;
+  }
+}

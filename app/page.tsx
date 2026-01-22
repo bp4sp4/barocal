@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import styles from "./page.module.css";
+import Calculator from "./components/calculator";
 
 export default function Home() {
   const [showFloatingBanner, setShowFloatingBanner] = useState(true);
@@ -597,6 +598,7 @@ export default function Home() {
       >
        <img src="/contents_002.png" alt="contents" className={styles.contents_image} />
       </div>
+      <Calculator />
       <div ref={newSectionRef} className={styles.new_section}>
         <div className={styles.star_image}></div>
         <p className={styles.review_text}>
@@ -691,6 +693,7 @@ export default function Home() {
           </SwiperSlide>
         </Swiper>
       </div>
+
       <footer ref={footerRef} className={styles.footer}>
         <div className={styles.footer_text_wrapper}>
           <p className={styles.footer_text_small}>지금 대출 상태만 간단히 점검받으세요</p>
@@ -825,7 +828,9 @@ export default function Home() {
                   경우 상담 서비스 이용이 제한됩니다.
                 </p>
               </div>
+              
             </div>
+            
             <button
               type="submit"
               className={styles.modal_submit_button}
