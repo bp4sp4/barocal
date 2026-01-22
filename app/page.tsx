@@ -505,6 +505,7 @@ export default function Home() {
           </>
         )}
       </div>
+      <Calculator />
       <div ref={contentsSectionRef} className={styles.cotent_new_section}>
         <div className={styles.news_text_wrapper}>
           <p className={styles.news_pretext}>2026년 중소벤처기업부 소상공인 예산</p>
@@ -598,7 +599,7 @@ export default function Home() {
       >
        <img src="/contents_002.png" alt="contents" className={styles.contents_image} />
       </div>
-      <Calculator />
+      
       <div ref={newSectionRef} className={styles.new_section}>
         <div className={styles.star_image}></div>
         <p className={styles.review_text}>
