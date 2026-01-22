@@ -241,6 +241,9 @@ export default function Calculator() {
             </h1>
             <p className={styles.subtitle}>1분 만에 예상 한도와 금리를 확인하세요</p>
           </div>
+          <div className={styles.calculator_bg}>
+          <img src="/calculator_bg.png" alt="calculator bg" />
+          </div>
           <button className={styles.ctaButton} onClick={handleStart}>
         전체 예산 소진 전 1분 자가진단 시작하기
           </button>

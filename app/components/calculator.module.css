@@ -1,6 +1,6 @@
 .container {
   width: 100%;
-  background-color: #f2f4f6;
+  background-color: #0039b2;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,10 +13,10 @@
   max-width: 450px;
   background: #ffffff;
   border-radius: 8px;
-  padding: 40px 24px;
+  padding: 40px 32px;
   display: flex;
   flex-direction: column;
-  min-height: 600px;
+  
 }
 
 .innerCenter {
@@ -35,18 +35,17 @@
 
 /* Header & Typography */
 .header {
-  flex: 1;
+  
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .title {
-  font-size: 26px;
+  font-size: 35px;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.2;
   color: #191f28;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .title span {
@@ -320,26 +319,16 @@
   margin-bottom: 20px;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .container {
-    padding: 16px;
-  }
 
-  .inner {
-    padding: 32px 20px;
-    min-height: auto;
-  }
 
-  .title {
-    font-size: 24px;
-  }
 
-  .formTitle {
-    font-size: 20px;
-  }
+.calculator_bg {
+ display: flex;
+ justify-content: center;
+ align-items: center;
+}
 
-  .resultTitle {
-    font-size: 20px;
-  }
+.calculator_bg img {
+ width: 200px;
+ 
 }
