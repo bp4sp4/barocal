@@ -447,10 +447,8 @@ export default function Calculator() {
           
           <div className={styles.buttonGroup}>
             <button className={styles.ctaButton} onClick={handleReset}>
-              <span className={styles.resetIcon}>
-                <img src="/reset.png" alt="reset" />
-              </span>
-              다시 하기
+           
+              이대로 안내받기
             </button>
           </div>
         </div>
