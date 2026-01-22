@@ -170,7 +170,7 @@ export async function sendConsultationEmail(data: ConsultationEmailData) {
               </tr>
               ${data.industry || data.revenue || data.debt ? `
               <tr style="border-top: 1px solid #ebedf0; margin-top: 20px;">
-                <td colspan="2" style="padding-top: 20px; font-size: 15px; font-weight: 600; color: #191f28;">계산기 정보</td>
+                <td colspan="2" style="padding-top: 20px; font-size: 15px; font-weight: 600; color: #191f28;">입력한 정보</td>
               </tr>
               ${data.industry ? `
               <tr>
