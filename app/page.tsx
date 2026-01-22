@@ -729,15 +729,15 @@ export default function Home() {
         </div>
         <button
           className={styles.footer_button}
-          onClick={() => handleOpenModal("소상공인_이자")}
+          onClick={scrollToCalculator}
         >
-          지금 대출상태 무료점검 받기
+          1분 자가진단 시작하기
         </button>
       </footer>
       {showFloatingBanner && (
         <div className={styles.floating_banner}>
-          <button onClick={scrollToFooter} className={styles.floating_button}>
-          지금 대출상태 무료점검 받기
+          <button onClick={scrollToCalculator} className={styles.floating_button}>
+          1분 자가진단 시작하기
           </button>
         </div>
       )}
